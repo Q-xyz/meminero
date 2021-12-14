@@ -24,10 +24,11 @@ jobs:
       id: slack
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      uses: slackapi/slack-github-action@v1.15.0
+      uses: voxmedia/github-action-slack-notify-build@v1
       with:
-        channel-id: q-xyz-cicd
-        slack-message: ":pepegalight: STARTED meminero image build"
+        channel: infra-ci-barnbridge
+        status: ":pepegalight: STARTED"
+        color: warning
 
     - name: Get branch name (merge)
       if: github.event_name != 'pull_request'
@@ -77,19 +78,23 @@ jobs:
       if: success()
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      uses: slackapi/slack-github-action@v1.15.0
+      uses: voxmedia/github-action-slack-notify-build@v1
       with:
-        channel-id: q-xyz-cicd
-        slack-message: ":white_check_mark: ${{ env.IMAGE_TAG }}"
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel: infra-ci-barnbridge
+        status: ":white_check_mark: ${{ env.IMAGE_TAG }}"
+        color: good
 
     - name: Notify Slack failure
       if: failure()
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      uses: slackapi/slack-github-action@v1.15.0
+      uses: voxmedia/github-action-slack-notify-build@v1
       with:
-        channel-id: q-xyz-cicd
-        slack-message: ":octagonal_sign: FAILED"
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel: infra-ci-barnbridge
+        status: ":octagonal_sign: FAILED"
+        color: danger
 
     - name: Logout from Amazon ECR
       if: always()
